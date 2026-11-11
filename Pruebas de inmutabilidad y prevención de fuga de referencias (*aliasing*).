@@ -1,0 +1,60 @@
+--- PRUEBAS QUE CORRE "make test" (30 en total) ---
+
+PRUEBAS DE JAVA (18) - archivo java/src/tac/pruebas/PruebasTac.java
+
+Inmutabilidad y prevencion de fuga de referencias / aliasing (7):
+ 1. Copia defensiva de entrada (constructor): cambiar el arreglo original
+    despues de crear el EstudioMedico no lo altera.
+ 2. Copia defensiva de salida (getPixeles): cambiar el arreglo devuelto
+    no altera el estudio.
+ 3. getPixeles devuelve un objeto distinto en cada llamada.
+ 4. Lista copiada: vaciar la lista original no afecta al resultado.
+ 5. La lista de regiones del resultado es inmodificable (lanza
+    UnsupportedOperationException al intentar agregar).
+ 6. La mascara del resultado esta protegida con copia.
+ 7. El constructor protege el invariante ancho*alto (rechaza datos invalidos).
+
+Factory Method y polimorfismo (2):
+ 8. La fabrica tumoral crea un AnalizadorTumoral.
+ 9. La fabrica osea crea un AnalizadorOseo.
+
+Integracion real Java -> Python -> C++ -> Python (5):
+10. tac_01 tiene 2 regiones.
+11. En tac_01 la region mayor esta cerca de (100, 108).
+12. tac_02 tiene 1 region (tumor irregular).
+13. tac_03 (sano) no tiene regiones.
+14. El analizador oseo encuentra el craneo (1 region grande).
+
+Inversion de dependencias, DIP (1):
+15. El servicio funciona con dependencias falsas, sin C++ ni Python.
+
+Thread safety (3):
+16. Lote con 4 hilos da el mismo resultado que con 1 hilo.
+17. Repositorio concurrente: 8 hilos x 500 escrituras, no se pierde ninguna.
+18. Un error en un hilo se propaga como TacException.
+
+PRUEBAS DE PYTHON (12) - archivo funcional/tests/test_funcional.py
+
+Option (2):
+ 1. Some: map y flat_map.
+ 2. Nothing ignora las funciones.
+
+Pureza y programacion funcional (4):
+ 3. normalizar no modifica la entrada y es determinista.
+ 4. Currificacion.
+ 5. compose.
+ 6. La mascara excluye bordes fuertes.
+
+Segmentacion (4):
+ 7. Dos componentes conexas.
+ 8. La recursion de cola no desborda la pila (20000 pasos).
+ 9. region_mayor con Option (vacio da Nothing).
+10. segmentar es pura (mismas entradas, mismas salidas).
+
+Formato PGM (2):
+11. Ida y vuelta (formatear y parsear).
+12. PGM invalido da Nothing.
+
+COMPROBACION EN C++ (benchmark, make bench):
+ - En cada configuracion se verifica que el resultado paralelo sea identico
+   al secuencial (columna "Resultado igual" = si).
