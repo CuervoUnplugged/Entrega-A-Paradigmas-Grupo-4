@@ -1,0 +1,38 @@
+COMANDOS PARA CORRER EL PROYECTO (Grupo 4)
+Escribirlos en la terminal, dentro de la carpeta proyecto_grupo4
+(el comando ls debe mostrar el archivo Makefile)
+
+--- UBICARSE EN LA CARPETA ---
+ls                                   Lista lo que hay en la carpeta actual
+cd proyecto_grupo4_repositorio       Entra a esa carpeta
+cd proyecto_grupo4                   Entra a la carpeta del proyecto
+
+--- COMPILAR Y PROBAR ---
+make all                             Compila C++ y Java (debe terminar sin errores)
+make test                            Corre las pruebas: 12 de Python y al final
+                                     "18/18 pruebas correctas"
+make demo                            Analiza tac_01 y luego los 3 estudios en lote
+
+--- CORRER EL ANALISIS DIRECTAMENTE ---
+java -cp build/java tac.app.Main lote
+    Analiza los 3 estudios. Resultado esperado: 2 regiones en tac_01,
+    1 en tac_02 y ninguna en tac_03.
+java -cp build/java tac.app.Main analizar tac_02 --tipo tumoral
+    Analiza un solo estudio buscando tumores.
+java -cp build/java tac.app.Main analizar tac_03 --tipo oseo
+    Analiza un solo estudio buscando el craneo.
+
+--- CORRER CADA MODULO POR SEPARADO ---
+./build/convolve --modo bordes < datos/tac_01.pgm > bordes.pgm
+    Solo el modulo de C++.
+python3 -m unittest discover -s funcional/tests -v
+    Solo las pruebas de Python.
+
+--- BENCHMARK (SECUENCIAL VS PARALELO) ---
+nproc                                Muestra cuantos nucleos tiene la maquina
+make bench                           Corre el benchmark (un par de minutos) y
+                                     guarda la tabla en docs/benchmarks.md
+cat docs/benchmarks.md               Muestra la tabla guardada
+
+--- REQUISITOS (si se corre en un computador propio) ---
+g++ con OpenMP (C++17), JDK 17 o superior, Python 3.10 o superior, make
