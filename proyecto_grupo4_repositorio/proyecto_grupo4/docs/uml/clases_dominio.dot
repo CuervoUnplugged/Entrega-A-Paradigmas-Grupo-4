@@ -1,0 +1,42 @@
+digraph G {
+  rankdir=BT; nodesep=0.45; ranksep=0.7; fontname="DejaVu Sans";
+  node [shape=record, fontname="DejaVu Sans", fontsize=10, style=filled, fillcolor="#FFFFFF"];
+  edge [fontname="DejaVu Sans", fontsize=9];
+
+  EstudioMedico [label="{EstudioMedico\n\<\<final, inmutable\>\>|- idPaciente : String\l- modalidad : String\l- ancho : int\l- alto : int\l- maxval : int\l- pixeles : int[]\l|+ EstudioMedico(idPaciente : String, modalidad : String, ancho : int, alto : int, maxval : int, pixeles : int[])\l+ getIdPaciente() : String\l+ getModalidad() : String\l+ getAncho() : int\l+ getAlto() : int\l+ getMaxval() : int\l+ getPixeles() : int[]\l+ getPixel(x : int, y : int) : int\l}"];
+
+  RegionTumoral [label="{RegionTumoral\n\<\<record\>\>|- etiqueta : int\l- area : int\l- xMin : int\l- yMin : int\l- xMax : int\l- yMax : int\l- cx : double\l- cy : double\l|+ etiqueta() : int\l+ area() : int\l+ xMin() : int\l+ yMin() : int\l+ xMax() : int\l+ yMax() : int\l+ cx() : double\l+ cy() : double\l}"];
+
+  ResultadoAnalisis [label="{ResultadoAnalisis\n\<\<record\>\>|- idPaciente : String\l- ancho : int\l- alto : int\l- bordes : int[]\l- mascara : int[]\l- regiones : List\<RegionTumoral\>\l|+ bordes() : int[]\l+ mascara() : int[]\l+ regiones() : List\<RegionTumoral\>\l+ hayRegiones() : boolean\l+ regionMayor() : Optional\<RegionTumoral\>\l}"];
+
+  RepositorioImagen [label="{\<\<interface\>\>\nRepositorioImagen||+ cargar(id : String) : EstudioMedico\l+ listarIds() : List\<String\>\l}"];
+
+  RepositorioImagenArchivo [label="{RepositorioImagenArchivo|- ID_VALIDO : Pattern\l- carpeta : Path\l|+ RepositorioImagenArchivo(carpeta : Path)\l+ cargar(id : String) : EstudioMedico\l+ listarIds() : List\<String\>\l}"];
+
+  RepositorioImagenEnMemoria [label="{RepositorioImagenEnMemoria|- estudios : ConcurrentMap\<String, EstudioMedico\>\l|+ guardar(estudio : EstudioMedico) : void\l+ cargar(id : String) : EstudioMedico\l+ listarIds() : List\<String\>\l}"];
+
+  ServicioDiagnostico [label="{ServicioDiagnostico|- repositorio : RepositorioImagen\l- fabrica : FabricaAnalizador\l|+ ServicioDiagnostico(repositorio : RepositorioImagen, fabrica : FabricaAnalizador)\l+ analizar(id : String) : ResultadoAnalisis\l+ analizarLote(ids : List\<String\>, hilos : int) : Map\<String, ResultadoAnalisis\>\l}"];
+
+  FabricaAnalizador [label="{FabricaAnalizador\n\<\<abstract\>\>|# nucleo : NucleoConvolucion\l# pipeline : PipelineFuncional\l|# crearAnalizador() : AnalizadorMedico \{abstract\}\l+ analizar(estudio : EstudioMedico) : ResultadoAnalisis\l+ nombreAnalizador() : String\l}"];
+
+  TacException [label="{TacException\n\<\<checked\>\>||+ TacException(mensaje : String)\l}"];
+  RepositorioException [label="{RepositorioException||+ RepositorioException(mensaje : String)\l}"];
+  IntegracionException [label="{IntegracionException||+ IntegracionException(mensaje : String)\l}"];
+
+  // Generalizacion
+  RepositorioException -> TacException [arrowhead=onormal];
+  IntegracionException -> TacException [arrowhead=onormal];
+  // Realizacion (implements)
+  RepositorioImagenArchivo -> RepositorioImagen [arrowhead=onormal, style=dashed];
+  RepositorioImagenEnMemoria -> RepositorioImagen [arrowhead=onormal, style=dashed];
+  // Composicion: el resultado es dueno de sus regiones
+  ResultadoAnalisis -> RegionTumoral [dir=back, arrowtail=diamond, arrowhead=none, taillabel="1", headlabel="0..*", labeldistance=2.2];
+  // Agregacion
+  ServicioDiagnostico -> RepositorioImagen [dir=back, arrowtail=odiamond, arrowhead=none, taillabel="1", headlabel="1", labeldistance=2.2];
+  ServicioDiagnostico -> FabricaAnalizador [dir=back, arrowtail=odiamond, arrowhead=none, taillabel="1", headlabel="1", labeldistance=2.2];
+  // Dependencia
+  RepositorioImagen -> EstudioMedico [arrowhead=vee, style=dashed, label="\<\<use\>\>"];
+  RepositorioImagenEnMemoria -> EstudioMedico [arrowhead=vee, style=dashed, label="\<\<use\>\>"];
+  ServicioDiagnostico -> ResultadoAnalisis [arrowhead=vee, style=dashed, label="\<\<create\>\>"];
+  RepositorioImagen -> RepositorioException [arrowhead=vee, style=dashed, label="\<\<throws\>\>"];
+}

@@ -1,0 +1,33 @@
+digraph F {
+  rankdir=LR; nodesep=0.35; ranksep=0.5; fontname="DejaVu Sans"; compound=true;
+  node [fontname="DejaVu Sans", fontsize=11, shape=box, style="rounded,filled", fillcolor="#FFFFFF"];
+  edge [fontname="DejaVu Sans", fontsize=9];
+
+  archivo [label="Archivo TAC\n(PGM P2, 12 bits)", shape=note, fillcolor="#F2F2F2"];
+  salida  [label="Salida:\nbordes.pgm\nmascara.pgm\nreporte de regiones", shape=note, fillcolor="#F2F2F2"];
+
+  subgraph cluster_java {
+    label="MODULO 2 - Orientado a Objetos (Java 17)  |  orquestador"; style="rounded,filled"; fillcolor="#E8F0FE"; fontsize=11;
+    repo [label="RepositorioImagen\n.cargar(id)"];
+    est  [label="EstudioMedico\n(inmutable)"];
+    ana  [label="AnalizadorBase.analizar()\n(Template Method)"];
+    res  [label="ResultadoAnalisis\n(record inmutable)"];
+  }
+  subgraph cluster_py {
+    label="MODULO 3 - Funcional (Python 3.10+)"; style="rounded,filled"; fillcolor="#E6F4EA"; fontsize=11;
+    norm [label="normalizar\n(map + curry)\nventana nivel/ancho\n12 bits -> 8 bits"];
+    seg  [label="segmentar\n(filter + recursion de cola\n+ reduce + Option)"];
+  }
+  subgraph cluster_cpp {
+    label="MODULO 1 - Imperativo (C++17 + OpenMP)"; style="rounded,filled"; fillcolor="#FDECEA"; fontsize=11;
+    conv [label="convolve --modo bordes\nGauss 5x5 -> Sobel 3x3\n#pragma omp parallel for"];
+  }
+
+  archivo -> repo; repo -> est [label="1"]; est -> ana [label="2"];
+  ana -> norm [label="3. pixeles 12 bits"];
+  norm -> conv [label="4. imagen 8 bits"];
+  conv -> seg [label="5. mapa de bordes", constraint=false];
+  norm -> seg [label="imagen 8 bits", style=dashed, constraint=false];
+  seg -> ana [label="6. regiones + mascara", constraint=false];
+  ana -> res [label="7"]; res -> salida [label="8"];
+}

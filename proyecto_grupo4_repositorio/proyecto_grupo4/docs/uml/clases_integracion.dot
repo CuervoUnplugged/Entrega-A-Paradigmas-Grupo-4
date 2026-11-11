@@ -1,0 +1,18 @@
+digraph G {
+  rankdir=BT; nodesep=0.3; ranksep=0.6; fontname="DejaVu Sans";
+  node [shape=record, fontname="DejaVu Sans", fontsize=10, style=filled, fillcolor="#FFFFFF"];
+  edge [fontname="DejaVu Sans", fontsize=9];
+
+  NucleoConvolucion [label="{\<\<interface\>\>\nNucleoConvolucion||+ detectarBordes(ancho : int, alto : int, pixeles : int[]) : int[]\l}"];
+  NucleoConvolucionCpp [label="{NucleoConvolucionCpp|- ejecutable : Path\l- hilos : int\l|+ NucleoConvolucionCpp(ejecutable : Path, hilos : int)\l+ detectarBordes(ancho : int, alto : int, pixeles : int[]) : int[]\l}"];
+  PipelineFuncional [label="{\<\<interface\>\>\nPipelineFuncional||+ normalizar(ancho : int, alto : int, maxval : int,\l  pixeles : int[], nivel : int, anchoVentana : int) : int[]\l+ segmentar(ancho : int, alto : int, normalizada : int[],\l  bordes : int[], p : ParametrosSegmentacion) : ResultadoSegmentacion\l}"];
+  PipelineFuncionalPython [label="{PipelineFuncionalPython|- python : String\l- script : Path\l|+ PipelineFuncionalPython(python : String, script : Path)\l+ normalizar(...) : int[]\l+ segmentar(...) : ResultadoSegmentacion\l- leerRegiones(lineas : List\<String\>) :\l  List\<RegionTumoral\> \{static\}\l}"];
+  ProcesoExterno [label="{ProcesoExterno\n\<\<final, package-private\>\>||~ ejecutar(comando : List\<String\>, stdin : Path,\l  stdout : Path, timeoutSegundos : long) : void \{static\}\l~ temporal(prefijo : String, sufijo : String) : Path \{static\}\l~ borrar(archivos : Path...) : void \{static\}\l}"];
+  ResultadoSegmentacion [label="{ResultadoSegmentacion\n\<\<record\>\>|- regiones : List\<RegionTumoral\>\l- mascara : int[]\l|}"];
+  ParametrosSegmentacion [label="{ParametrosSegmentacion|...}"];
+  NucleoConvolucionCpp -> NucleoConvolucion [arrowhead=onormal, style=dashed];
+  PipelineFuncionalPython -> PipelineFuncional [arrowhead=onormal, style=dashed];
+  PipelineFuncional -> ResultadoSegmentacion [arrowhead=vee, style=dashed, label="\<\<use\>\>"];
+  NucleoConvolucionCpp -> ProcesoExterno [arrowhead=vee, style=dashed, label="\<\<use\>\>"];
+  PipelineFuncionalPython -> ProcesoExterno [arrowhead=vee, style=dashed, label="\<\<use\>\>"];
+}

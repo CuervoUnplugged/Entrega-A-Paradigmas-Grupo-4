@@ -1,0 +1,33 @@
+digraph G {
+  rankdir=BT; nodesep=0.3; ranksep=0.6; fontname="DejaVu Sans";
+  node [shape=record, fontname="DejaVu Sans", fontsize=10, style=filled, fillcolor="#FFFFFF"];
+  edge [fontname="DejaVu Sans", fontsize=9];
+
+  FabricaAnalizador [label="{FabricaAnalizador\n\<\<abstract\>\> (Creator)|# nucleo : NucleoConvolucion\l# pipeline : PipelineFuncional\l|# crearAnalizador() : AnalizadorMedico \{abstract\}\l+ analizar(estudio : EstudioMedico) : ResultadoAnalisis\l+ nombreAnalizador() : String\l}"];
+  FabricaAnalizadorTumoral [label="{FabricaAnalizadorTumoral||# crearAnalizador() : AnalizadorMedico\l}"];
+  FabricaAnalizadorOseo [label="{FabricaAnalizadorOseo||# crearAnalizador() : AnalizadorMedico\l}"];
+  AnalizadorMedico [label="{\<\<interface\>\>\nAnalizadorMedico (Product)||+ analizar(estudio : EstudioMedico) : ResultadoAnalisis\l+ nombre() : String\l}"];
+  AnalizadorBase [label="{AnalizadorBase\n\<\<abstract\>\> (Template Method)|- nucleo : NucleoConvolucion\l- pipeline : PipelineFuncional\l|# AnalizadorBase(nucleo : NucleoConvolucion,\l  pipeline : PipelineFuncional)\l# parametros() : ParametrosSegmentacion \{abstract\}\l# validar(estudio : EstudioMedico) : void\l+ analizar(estudio : EstudioMedico) : ResultadoAnalisis \{final\}\l}"];
+  AnalizadorTumoral [label="{AnalizadorTumoral||# parametros() : ParametrosSegmentacion\l+ nombre() : String\l}"];
+  AnalizadorOseo [label="{AnalizadorOseo||# parametros() : ParametrosSegmentacion\l+ nombre() : String\l}"];
+  ParametrosSegmentacion [label="{ParametrosSegmentacion\n\<\<record\>\>|- nivel : int\l- anchoVentana : int\l- bandaMin : int\l- bandaMax : int\l- umbralBorde : int\l- areaMinima : int\l|}"];
+  NucleoConvolucion [label="{NucleoConvolucion|...}"];
+  PipelineFuncional [label="{PipelineFuncional|...}"];
+  EstudioMedico [label="{EstudioMedico|...}"];
+  ResultadoAnalisis [label="{ResultadoAnalisis|...}"];
+  FabricaAnalizadorTumoral -> FabricaAnalizador [arrowhead=onormal];
+  FabricaAnalizadorOseo -> FabricaAnalizador [arrowhead=onormal];
+  AnalizadorTumoral -> AnalizadorBase [arrowhead=onormal];
+  AnalizadorOseo -> AnalizadorBase [arrowhead=onormal];
+  AnalizadorBase -> AnalizadorMedico [arrowhead=onormal, style=dashed];
+  AnalizadorBase -> NucleoConvolucion [dir=back, arrowtail=odiamond, arrowhead=none, taillabel="1", headlabel="1", labeldistance=2.2];
+  AnalizadorBase -> PipelineFuncional [dir=back, arrowtail=odiamond, arrowhead=none, taillabel="1", headlabel="1", labeldistance=2.2];
+  FabricaAnalizador -> NucleoConvolucion [dir=back, arrowtail=odiamond, arrowhead=none];
+  FabricaAnalizador -> PipelineFuncional [dir=back, arrowtail=odiamond, arrowhead=none];
+  FabricaAnalizador -> AnalizadorMedico [arrowhead=vee, style=dashed, label="\<\<create\>\>"];
+  FabricaAnalizadorTumoral -> AnalizadorTumoral [arrowhead=vee, style=dashed, label="\<\<create\>\>"];
+  FabricaAnalizadorOseo -> AnalizadorOseo [arrowhead=vee, style=dashed, label="\<\<create\>\>"];
+  AnalizadorBase -> ParametrosSegmentacion [arrowhead=vee, style=dashed, label="\<\<use\>\>"];
+  AnalizadorBase -> EstudioMedico [arrowhead=vee, style=dashed, label="\<\<use\>\>"];
+  AnalizadorBase -> ResultadoAnalisis [arrowhead=vee, style=dashed, label="\<\<create\>\>"];
+}
