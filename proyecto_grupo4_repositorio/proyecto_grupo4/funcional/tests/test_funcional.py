@@ -11,12 +11,17 @@ from option import NOTHING, Some
 
 
 class PruebasOption(unittest.TestCase):
-    def test_some_map_y_flat_map(self):
+    def test_some_map_flat_map_filter_y_fold(self):
         self.assertEqual(Some(2).map(lambda x: x * 3), Some(6))
         self.assertEqual(Some(2).flat_map(lambda x: Some(x + 1)), Some(3))
+        self.assertEqual(Some(10).filter(lambda x: x > 5), Some(10))
+        self.assertTrue(Some(3).filter(lambda x: x > 5).es_vacio())
+        self.assertEqual(Some(4).fold(lambda: 0, lambda x: x * 2), 8)
 
     def test_nothing_ignora_las_funciones(self):
         self.assertTrue(NOTHING.map(lambda x: x / 0).es_vacio())
+        self.assertTrue(NOTHING.filter(lambda x: True).es_vacio())
+        self.assertEqual(NOTHING.fold(lambda: 99, lambda x: x), 99)
         self.assertEqual(NOTHING.get_or_else(7), 7)
 
 
@@ -56,27 +61,30 @@ class PruebasSegmentacion(unittest.TestCase):
         regiones = segmentacion.componentes(m, 5, 3)
         self.assertEqual(sorted(len(r) for r in regiones), [3, 3])
 
-    def test_recursion_de_cola_no_desborda_la_pila(self):
-        # Una "linea" de 20000 pixeles requeriria 20000 llamadas recursivas anidadas.
+    def test_expansion_por_capas_no_desborda_la_pila(self):
+        # Una linea de 20000 pixeles desbordaria la pila si usara recursion de cola en Python.
         n = 20000
         m = (1,) * n
         region = segmentacion.crecer_region(m, n, 1, 0)
         self.assertEqual(len(region), n)
         self.assertGreater(n, sys.getrecursionlimit())
 
-    def test_region_mayor_con_option(self):
+    def test_region_mayor_y_estadisticas_con_option(self):
         self.assertTrue(segmentacion.region_mayor(()).es_vacio())
+        self.assertTrue(segmentacion.estadisticas_opt(1, (), 4, 1).es_vacio())
         r1 = segmentacion.Region(1, 10, 0, 0, 1, 1, 0.5, 0.5)
         r2 = segmentacion.Region(2, 30, 0, 0, 1, 1, 0.5, 0.5)
         self.assertEqual(segmentacion.region_mayor((r1, r2)), Some(r2))
 
-    def test_segmentar_es_pura(self):
+    def test_segmentar_es_pura_y_monadica(self):
         norm = (120,) * 9 + (0,) * 7
         bordes = (0,) * 16
         a = segmentacion.segmentar(norm, bordes, 4, 4, 100, 170, 30, 2)
         b = segmentacion.segmentar(norm, bordes, 4, 4, 100, 170, 30, 2)
         self.assertEqual(a, b)
-        self.assertEqual(a[0][0].area, 9)
+        self.assertEqual(a.regiones[0].area, 9)
+        invalido = segmentacion.segmentar_opt(norm, bordes, -1, 4, 100, 170, 30, 2)
+        self.assertTrue(invalido.es_vacio())
 
 
 class PruebasPGM(unittest.TestCase):

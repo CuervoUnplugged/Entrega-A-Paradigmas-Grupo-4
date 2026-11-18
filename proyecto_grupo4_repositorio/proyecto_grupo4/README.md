@@ -24,21 +24,3 @@ make bench    # benchmark secuencial vs paralelo -> docs/benchmarks.md
 java -cp build/java tac.app.Main analizar tac_02 --tipo tumoral   # o --tipo oseo
 ```
 Los datos son TAC **sintéticas** (`datos/generar_tac.py`), no imágenes de pacientes.
-
-## Estructura
-```
-cpp/         kernel C++ (convolucion.*, main.cpp, bench.cpp)
-java/src/tac dominio/ repositorio/ integracion/ analisis/ app/ pruebas/ util/
-funcional/   option.py pixeles.py segmentacion.py pgm.py cli.py tests/
-datos/       TAC sintéticas y generador
-docs/        Entrega_Parcial/ Entrega_Final/ uml/ figuras/ herramientas/ benchmarks.md
-```
-
-## Entregas (Git)
-- Etiqueta `checkpoint-30`: entrega parcial (Sesión 3).
-- Etiqueta `entrega-final`: entrega final (Sesión 5).
-
-## Pendiente del grupo
-Ejecutar `make bench` en un computador multinúcleo para obtener el speedup real y regenerar los informes con
-`python3 docs/herramientas/generar_documentos.py`. Completar nombres de integrantes en las portadas
-(`docs/herramientas/generar_documentos.py`).
