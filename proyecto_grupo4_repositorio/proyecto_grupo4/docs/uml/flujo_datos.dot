@@ -16,11 +16,11 @@ digraph F {
   subgraph cluster_py {
     label="MODULO 3 - Funcional (Python 3.10+)"; style="rounded,filled"; fillcolor="#E6F4EA"; fontsize=11;
     norm [label="normalizar\n(map + curry)\nventana nivel/ancho\n12 bits -> 8 bits"];
-    seg  [label="segmentar\n(filter + recursion de cola\n+ reduce + Option)"];
+    seg  [label="segmentar_opt\n(filter + capas frozenset O(1) pila\n+ reduce + monada Option)"];
   }
   subgraph cluster_cpp {
     label="MODULO 1 - Imperativo (C++17 + OpenMP)"; style="rounded,filled"; fillcolor="#FDECEA"; fontsize=11;
-    conv [label="convolve --modo bordes\nGauss 5x5 -> Sobel 3x3\n#pragma omp parallel for"];
+    conv [label="convolve --modo bordes\nGauss 5x5 -> Sobel 3x3\nLoop Tiling 32x32 + omp collapse(2)"];
   }
 
   archivo -> repo; repo -> est [label="1"]; est -> ana [label="2"];

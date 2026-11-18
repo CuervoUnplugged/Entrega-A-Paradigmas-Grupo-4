@@ -285,3 +285,76 @@ b += [
 ]
 generar(b, f"{DOCS}/Entrega_Final/Informe_Tecnico_Final.pdf", md=f"{DOCS}/Entrega_Final/Informe_Tecnico_Final.md", encabezado=ENC, ruta_base=DOCS)
 print("Informe_Tecnico_Final ok")
+# =====================================================================================
+# DOCUMENTO DE EVIDENCIA DE INTEGRACIÓN Y PRUEBAS DE ALIASING (ACTUALIZADO)
+# =====================================================================================
+b_ev = [
+    ("title", "Integración Java–C++–Python y Pruebas de Aliasing"),
+    ("sub", "<b>Grupo 4:</b> Segmentación y Procesamiento de Imágenes Médicas por Visión Artificial"),
+    ("sub", "Integrantes: Juan Manuel Cuervo, Juan Nicolas Buitrago, David Santiago Sanchez, Santiago Vasquez Ochica"),
+    ("space", 0.2),
+    ("h1", "1. Integración del Módulo OO (Java) con el Kernel C++ y el Pipeline Funcional"),
+    ("h2", "1.1 Cómo se integran"),
+    ("p", "El Módulo 2 (Java 17, orientado a objetos) es el orquestador. No conoce los detalles de C++ ni de Python: depende de dos interfaces, "
+          "NucleoConvolucion (kernel C++ con OpenMP y Loop Tiling) y PipelineFuncional (funciones puras en Python con mónada Option). "
+          "Cada interfaz tiene un adaptador que ejecuta el programa externo como un proceso, con la entrada y la salida en archivos temporales (imágenes PGM). "
+          "Para un estudio, el flujo es: Java carga el estudio -> Python normaliza (12 a 8 bits) -> C++ calcula bordes (Gauss 5x5 + Sobel 3x3 con Loop Tiling 32x32 y OpenMP collapse(2)) "
+          "-> Python segmenta regiones (expansión funcional por capas sin recursión de cola + mónada Option) -> Java entrega un resultado inmutable."),
+    ("img", "figuras/flujo_datos.png", 1.0, "Figura 1. Flujo de datos entre los tres módulos."),
+    ("table", ["Contrato (Java)", "Módulo que lo cumple", "Adaptador"], [
+        ["NucleoConvolucion.detectarBordes(ancho, alto, pixeles)", "Kernel imperativo C++17 + OpenMP + Loop Tiling (build/convolve)", "NucleoConvolucionCpp"],
+        ["PipelineFuncional.normalizar(...)", "Pipeline funcional Python (funcional/cli.py normalizar)", "PipelineFuncionalPython"],
+        ["PipelineFuncional.segmentar(...)", "Pipeline funcional Python (funcional/cli.py segmentar)", "PipelineFuncionalPython"],
+    ], [0.38, 0.38, 0.24]),
+    ("h2", "1.2 Código de la integración actualizado"),
+    ("p", "<b>Kernel C++ paralelo con Loop Tiling 32x32 (cpp/convolucion.cpp):</b> maximiza la localidad espacial y temporal en caché L1:"),
+    ("code", "constexpr int TILE_SIZE = 32;\n"
+             "#pragma omp parallel for collapse(2) schedule(static) if (paralelo)\n"
+             "for (int ty = 0; ty < h; ty += TILE_SIZE) {\n"
+             "    for (int tx = 0; tx < w; tx += TILE_SIZE) {\n"
+             "        const int y_lim = std::min(ty + TILE_SIZE, h);\n"
+             "        const int x_lim = std::min(tx + TILE_SIZE, w);\n"
+             "        for (int y = ty; y < y_lim; ++y) {\n"
+             "            float* fila = out + static_cast<size_t>(y) * w;\n"
+             "            for (int x = tx; x < x_lim; ++x) {\n"
+             "                float acc = 0.0f;\n"
+             "                for (int ky = 0; ky < k; ++ky) {\n"
+             "                    const float* fp = p + static_cast<size_t>(y + ky) * pw + x;\n"
+             "                    const float* fk = kw + static_cast<size_t>(ky) * k;\n"
+             "                    for (int kx = 0; kx < k; ++kx) acc += fp[kx] * fk[kx];\n"
+             "                }\n"
+             "                fila[x] = acc;\n"
+             "            }\n"
+             "        }\n"
+             "    }\n"
+             "}"),
+    ("p", "<b>Segmentación funcional pura con mónada Option y sin recursión de cola (funcional/segmentacion.py):</b>"),
+    ("code", "def estadisticas_opt(etiqueta: int, pixeles, ancho: int, area_min: int = 1) -> Option[Region]:\n"
+             "    return (\n"
+             "        Some(tuple(sorted(pixeles)))\n"
+             "        .filter(lambda px: len(px) >= max(1, area_min))\n"
+             "        .map(lambda px: reduce(_acumular(ancho), px, _Acum(0, 10 ** 9, 10 ** 9, -1, -1, 0, 0)))\n"
+             "        .map(lambda a: Region(etiqueta, a.area, a.x_min, a.y_min, a.x_max, a.y_max,\n"
+             "                              round(a.suma_x / a.area, 2), round(a.suma_y / a.area, 2)))\n"
+             "    )"),
+    ("h1", "2. Pruebas de inmutabilidad, mónada Option y prevención de aliasing"),
+    ("p", "Ejecución de las 12 pruebas unitarias de Python y las 18 pruebas de Java (30/30 pruebas exitosas):"),
+    ("code", "test_some_map_flat_map_filter_y_fold ... ok\n"
+             "test_nothing_ignora_las_funciones ... ok\n"
+             "test_expansion_por_capas_no_desborda_la_pila ... ok\n"
+             "test_region_mayor_y_estadisticas_con_option ... ok\n"
+             "test_segmentar_es_pura_y_monadica ... ok\n"
+             "Ran 12 tests ... OK\n\n"
+             "[OK] Copia defensiva de entrada (constructor)\n"
+             "[OK] Copia defensiva de salida (getPixeles)\n"
+             "[OK] Lista del resultado es inmodificable\n"
+             "[OK] Mascara del resultado protegida con copia\n"
+             "18/18 pruebas correctas"),
+    ("h1", "3. Diagramas de clases UML del Módulo POO (Java 17)"),
+    ("img", "figuras/clases_dominio.png", 1.0, "Figura 2. Dominio, repositorio y servicio."),
+    ("img", "figuras/clases_fabrica.png", 0.95, "Figura 3. Factory Method (fábricas), Template Method y analizadores."),
+    ("img", "figuras/clases_integracion.png", 1.0, "Figura 4. Contratos y adaptadores hacia el kernel C++ y el pipeline funcional."),
+]
+generar(b_ev, f"{DOCS}/Entrega_Final/Evidencia_Integracion_y_Aliasing.pdf", apaisado=True, encabezado=ENC, ruta_base=DOCS)
+shutil.copyfile(f"{DOCS}/Entrega_Final/Evidencia_Integracion_y_Aliasing.pdf", os.path.join(RAIZ, "Evidencia Integracion y Aliasing.pdf"))
+print("Evidencia_Integracion_y_Aliasing.pdf ok")
