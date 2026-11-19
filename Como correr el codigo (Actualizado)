@@ -1,0 +1,83 @@
+COMANDOS PARA CORRER EL PROYECTO (Grupo 4 - Versión Actualizada)
+Escribirlos en la terminal, dentro de la carpeta proyecto_grupo4
+(el comando ls debe mostrar el archivo Makefile)
+
+--- 1. OBTENER EL PROYECTO Y UBICARSE EN LA CARPETA ---
+# Si es en un computador nuevo (clonar desde GitHub):
+git clone https://github.com/CuervoUnplugged/Entrega-A-Paradigmas-Grupo-4.git
+cd Entrega-A-Paradigmas-Grupo-4/proyecto_grupo4_repositorio/proyecto_grupo4
+
+# Si ya estás dentro de GitHub Codespaces (desde la raíz del repositorio):
+ls                                   Lista lo que hay en la carpeta actual
+cd proyecto_grupo4_repositorio       Entra a la carpeta del repositorio
+cd proyecto_grupo4                   Entra a la carpeta principal del proyecto
+
+--- 2. COMPILAR Y PROBAR TODO EL SISTEMA ---
+make clean                           Limpia compilaciones anteriores y archivos temporales
+make all                             Compila C++ (con Loop Tiling 32x32 + OpenMP) y Java 17
+make test                            Corre las 30 pruebas automáticas:
+                                     - 12 de Python (mónada Option, pureza y segmentación
+                                       por capas sin recursión de cola) -> "Ran 12 tests ... OK"
+                                     - 18 de Java (aliasing, Factory Method, integración y
+                                       concurrencia) -> "18/18 pruebas correctas"
+make demo                            Analiza tac_01 y luego los 3 estudios en lote concurrente
+
+--- 3. CORRER EL ANÁLISIS DIRECTAMENTE (DESDE JAVA) ---
+java -cp build/java tac.app.Main lote --hilos 3
+    Analiza los 3 estudios en paralelo. Resultado esperado:
+    - tac_01: 2 regiones (áreas de 421 px y 140 px)
+    - tac_02: 1 región (área de 536 px)
+    - tac_03: Sin regiones sospechosas (estudio sano)
+
+java -cp build/java tac.app.Main analizar tac_02 --tipo tumoral
+    Analiza un solo estudio buscando regiones tumorales.
+
+java -cp build/java tac.app.Main analizar tac_03 --tipo oseo
+    Analiza un solo estudio buscando tejido óseo (el cráneo).
+
+--- 4. CORRER CADA MÓDULO POR SEPARADO ---
+# Solo el módulo imperativo de C++ (Gauss 5x5 + Sobel 3x3 con Loop Tiling):
+./build/convolve --modo bordes < datos/tac_01.pgm > salida/bordes_prueba.pgm
+
+# Solo el módulo funcional de Python (normalización pura 12 bits -> 8 bits):
+python3 funcional/cli.py normalizar --nivel 1700 --ancho 2400 < datos/tac_01.pgm > salida/norm_prueba.pgm
+
+# Solo la batería de pruebas unitarias de Python:
+python3 -m unittest discover -s funcional/tests -v
+
+# Solo la batería de pruebas de Java (integración y aliasing):
+java -cp build/java tac.pruebas.PruebasTac
+
+--- 5. BENCHMARK DE PARALELISMO (SECUENCIAL VS PARALELO) ---
+nproc                                Muestra cuántos núcleos tiene la máquina
+make bench                           Corre el benchmark de C++ (Loop Tiling + OpenMP) y
+                                     guarda la tabla en docs/benchmarks.md
+cat docs/benchmarks.md               Muestra la tabla de tiempos y speedup guardada
+
+--- 6. REGENERAR DIAGRAMAS, ANÁLISIS BIG O E INFORMES PDF ---
+# Instalar librerías necesarias (solo la primera vez en una PC o Codespace nuevo):
+# (En Windows, omitir la parte de sudo apt-get y ejecutar solo pip install)
+sudo apt-get update && sudo apt-get install -y graphviz
+pip install reportlab matplotlib pillow
+
+# Redibujar el diagrama de flujo desde Graphviz (.dot -> .png):
+dot -Tpng -Gdpi=200 docs/uml/flujo_datos.dot -o docs/figuras/flujo_datos.png
+
+# Generar los informes PDF y Markdown (incluye ANALISIS_BIG_O.md):
+python3 docs/herramientas/generar_documentos.py
+
+--- 7. VER LAS IMÁGENES, DIAGRAMAS Y DOCUMENTOS DE BIG O ---
+# Abrir los diagramas y resultados visuales en pestañas de VS Code / Codespaces:
+code docs/figuras/flujo_datos.png docs/figuras/resultados.png docs/figuras/clases_dominio.png docs/figuras/clases_fabrica.png docs/figuras/clases_integracion.png
+
+# Leer el análisis formal de complejidad Big O en la terminal:
+cat ANALISIS_BIG_O.md
+
+--- 8. COMANDO TODO EN UNO (COMPILAR + PROBAR + DEMO + REGENERAR DOCS) ---
+make clean && make test && make demo && (which dot >/dev/null && dot -Tpng -Gdpi=200 docs/uml/flujo_datos.dot -o docs/figuras/flujo_datos.png || true) && python3 docs/herramientas/generar_documentos.py
+
+--- REQUISITOS (si se corre en un computador propio) ---
+- Obligatorios para compilar y ejecutar:
+  g++ con soporte OpenMP (C++17), JDK 17 o superior, Python 3.10 o superior, make.
+- Opcionales (solo para regenerar diagramas PNG e informes PDF):
+  graphviz (comando dot) y paquetes Python: reportlab, matplotlib, pillow.
